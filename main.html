@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For You - Happy Birthday</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- React & ReactDOM via CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel standalone for JSX compiling in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            /* Retro dark blue background */
+            color: #f0f0f0;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+            /* Make images crisp like pixel art */
+            image-rendering: pixelated;
+        }
+
+        .font-pixel {
+            font-family: 'Press Start 2P', cursive;
+            line-height: 1.5;
+        }
+
+        .font-vt {
+            font-family: 'VT323', monospace;
+        }
+
+        /* Blocky scroll animations */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s steps(4), transform 0.5s steps(4);
+            will-change: opacity, transform;
+        }
+
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: none;
+        }
+
+        /* Pixel art style photo frames */
+        .pixel-frame {
+            background: #fff;
+            padding: 12px 12px 40px 12px;
+            border: 4px solid #000;
+            box-shadow: 10px 10px 0px #e94560;
+            /* Retro pink shadow */
+            transition: transform 0.2s steps(3);
+        }
+
+        .pixel-frame:hover {
+            transform: scale(1.05);
+            box-shadow: 15px 15px 0px #0f3460;
+        }
+
+        /* Pixel button */
+        .pixel-btn {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 15px 25px;
+            border: 4px solid #fff;
+            box-shadow: 6px 6px 0px #000;
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: all 0.1s steps(2);
+        }
+
+        .pixel-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px #000;
+            background: #ff5277;
+        }
+
+        .pixel-btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        /* Cute Baby GIF Stickers (Pixelated) */
+        .cute-sticker {
+            position: absolute;
+            z-index: 15;
+            user-select: none;
+            pointer-events: none;
+            border: 4px solid #fff;
+            box-shadow: 4px 4px 0 #000;
+            background: #fff;
+            animation: float-sticker 3s infinite alternate steps(6);
+        }
+
+        .cute-sticker img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Forces the GIFs to look slightly blocky to match the theme */
+            image-rendering: pixelated;
+        }
+
+        @keyframes float-sticker {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+
+            body,
+            html {
+                font-size: 16px;
+            }
+
+            .cute-sticker {
+                width: clamp(50px, 15vw, 80px) !important;
+                height: clamp(50px, 15vw, 80px) !important;
+                border-width: 2px;
+                box-shadow: 2px 2px 0 #000;
+            }
+
+            .pixel-frame {
+                padding: 8px 8px 24px 8px;
+                border-width: 2px;
+                box-shadow: 6px 6px 0px #e94560;
+            }
+
+            .pixel-frame:hover {
+                box-shadow: 8px 8px 0px #0f3460;
+            }
+
+            .font-pixel {
+                font-size: 80%;
+                /* scale down pixel fonts to fit */
+            }
+        }
+
+        /* Retro grid background */
+        .retro-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(233, 69, 96, 0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(233, 69, 96, 0.2) 2px, transparent 2px);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Reusable component for blocky scroll animations
+        function FadeInSection(props) {
+            const [isVisible, setVisible] = useState(false);
+            const domRef = useRef();
+
+            useEffect(() => {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setVisible(true);
+                            observer.unobserve(domRef.current);
+                        }
+                    });
+                }, { threshold: 0.15 });
+
+                if (domRef.current) observer.observe(domRef.current);
+                return () => { if (domRef.current) observer.disconnect(); };
+            }, []);
+
+            return (
+                <div ref={domRef} className={`fade-in-section ${isVisible ? 'is-visible' : ''} ${props.className || ''}`}>
+                    {props.children}
+                </div>
+            );
+        }
+
+        function BabyStickers() {
+            // Using classic funny baby GIFs (simulating the cute meme babies you shared)
+            const stickers = [
+                { gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnM4bWM3eHdpOGY3MzJmNW44N3l4NDIyNTZ5MWtyMHU2aHJpNHBuNSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/kZqbBT64ECtjy/giphy.gif", top: "5%", left: "5%", delay: "0s", size: "120px" },
+                { gif: "https://media.giphy.com/media/l41YkxvU8c7J7Bba0/giphy.gif", top: "20%", left: "80%", delay: "1s", size: "140px" },
+                { gif: "https://media.giphy.com/media/3o6ozh46EBu2EQvzZS/giphy.gif", top: "40%", left: "5%", delay: "0.5s", size: "130px" },
+                { gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTU2bGFlbXg5cXFxbW5tMHpreDRld3htZm11Y3lqOGJxa3p5cm85ZSZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/vRwrAwmPdkXZh4EAiR/giphy.gif", top: "55%", left: "85%", delay: "1.5s", size: "110px" },
+                { gif: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Y3BubmMzN2U0c3YyMml2c3FmZjB6aTF3YXB3aHprMzVxbGNicmY5cCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/c76IJLufpNwSULPk77/giphy.gif", top: "75%", left: "10%", delay: "0.2s", size: "150px" },
+                { gif: "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3Y3BubmMzN2U0c3YyMml2c3FmZjB6aTF3YXB3aHprMzVxbGNicmY5cCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/GSYq0Y73Tem8zOkABB/giphy.gif", top: "85%", left: "75%", delay: "1.2s", size: "140px" }
+            ];
+
+            return (
+                <React.Fragment>
+                    {stickers.map((s, i) => (
+                        <div key={i} className="cute-sticker" style={{
+                            top: s.top,
+                            left: s.left,
+                            animationDelay: s.delay,
+                            width: s.size,
+                            height: s.size
+                        }}>
+                            <img src={s.gif} alt="funny baby gif" onError={(e) => { e.target.style.display = 'none'; }} />
+                        </div>
+                    ))}
+                </React.Fragment>
+            );
+        }
+
+        function App() {
+            return (
+                <div className="min-h-screen relative overflow-hidden selection:bg-[#e94560]/50">
+                    <div className="retro-grid"></div>
+                    <BabyStickers />
+
+                    {/* Hero Section */}
+                    <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 md:px-6 relative z-10 py-10">
+                        <FadeInSection>
+                            <h1 className="font-pixel text-xl sm:text-2xl md:text-5xl lg:text-6xl mb-6 md:mb-8 text-[#e94560] drop-shadow-[2px_2px_0_#000] md:drop-shadow-[4px_4px_0_#000] break-words">
+                                LEVEL UP: BIRTHDAY!
+                            </h1>
+                            <p className="font-vt text-xl md:text-4xl text-[#0f3460] bg-white px-3 py-2 md:px-4 md:py-2 border-2 md:border-4 border-black box-shadow-[3px_3px_0_#000] md:box-shadow-[6px_6px_0_#000] inline-block max-w-[95%] md:max-w-3xl font-bold leading-relaxed">
+                                YOU ARE A MASTERPIECE.<br />
+                                DON'T LET ANYONE TELL YOU OTHERWISE.
+                            </p>
+                            <div className="mt-20 text-white animate-pulse">
+                                <p className="font-pixel text-xs tracking-widest uppercase mb-4">PRESS [SCROLL] TO CONTINUE</p>
+                                <div className="text-3xl">▼</div>
+                            </div>
+                        </FadeInSection>
+                    </div>
+
+                    {/* Section 1: Photography */}
+                    <div className="max-w-7xl mx-auto py-16 md:py-24 px-4 md:px-12 relative z-10">
+                        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-24">
+                            <FadeInSection className="w-full md:w-1/2">
+                                <div className="pixel-frame">
+                                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Camera" className="w-full h-[200px] sm:h-[300px] md:h-[400px] object-cover" />
+                                </div>
+                            </FadeInSection>
+                            <FadeInSection className="w-full md:w-1/2 bg-[#0f3460] p-6 md:p-8 border-2 md:border-4 border-[#fff] shadow-[4px_4px_0_#000] md:shadow-[8px_8px_0_#000]">
+                                <h2 className="font-pixel text-lg sm:text-xl md:text-3xl mb-4 md:mb-6 text-[#e94560] leading-snug">PHOTOGRAPHY SKILL: MAX</h2>
+                                <p className="text-white text-lg md:text-2xl leading-relaxed mb-4 md:mb-6">
+                                    The way you frame the world through your lens is a rare and beautiful gift. It's not just clicking a button, it's capturing truth.
+                                </p>
+                                <p className="text-[#e94560] text-xl md:text-2xl leading-relaxed">
+                                    > Never let anyone dim your unique perspective.
+                                </p>
+                            </FadeInSection>
+                        </div>
+                    </div>
+
+                    {/* Section 2: Art */}
+                    <div className="max-w-7xl mx-auto py-16 md:py-24 px-4 md:px-12 relative z-10">
+                        <div className="flex flex-col md:flex-row-reverse items-center gap-8 md:gap-24">
+                            <FadeInSection className="w-full md:w-1/2">
+                                <div className="pixel-frame">
+                                    <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Art" className="w-full h-[200px] sm:h-[300px] md:h-[400px] object-cover" />
+                                </div>
+                            </FadeInSection>
+                            <FadeInSection className="w-full md:w-1/2 bg-[#e94560] p-6 md:p-8 border-2 md:border-4 border-[#000] shadow-[4px_4px_0_#fff] md:shadow-[8px_8px_0_#fff] text-left">
+                                <h2 className="font-pixel text-lg sm:text-xl md:text-3xl mb-4 md:mb-6 text-[#fff] leading-snug">CREATIVITY: UNLOCKED</h2>
+                                <p className="text-[#000] text-lg md:text-2xl font-bold leading-relaxed mb-4 md:mb-6">
+                                    Every stroke of your brush brings a little more beauty into a world that desperately needs it. Your art is your truest voice.
+                                </p>
+                                <p className="text-white text-xl md:text-2xl leading-relaxed">
+                                    > People may come and go, but your art is forever.
+                                </p>
+                            </FadeInSection>
+                        </div>
+                    </div>
+
+                    {/* Section 3: Birthday & Connection */}
+                    <div className="max-w-4xl mx-auto py-20 md:py-32 px-4 md:px-6 text-center relative z-10">
+                        <FadeInSection>
+                            <div className="bg-[#1a1a2e] p-6 md:p-16 border-4 md:border-8 border-[#e94560] shadow-[8px_8px_0_#000] md:shadow-[15px_15px_0_#000]">
+                                <h2 className="font-pixel text-xl sm:text-2xl md:text-5xl mb-6 md:mb-10 text-white animate-bounce leading-snug">
+                                    HAPPY BIRTHDAY!
+                                </h2>
+
+                                <p className="text-xl md:text-3xl text-gray-300 leading-relaxed mb-6 md:mb-8">
+                                    I know things have been hard, and feeling ignored hurts. But remember, you have friends who love you and admire the brilliant artist you are.
+                                </p>
+
+                                <p className="text-xl md:text-2xl text-[#e94560] mb-12">
+                                    "The most beautiful people are those who have found their way out of the depths."
+                                </p>
+
+                                {/* Link to the flower garden */}
+                                <a href="index.html" className="pixel-btn font-pixel text-sm md:text-lg">
+                                    [ENTER GARDEN]
+                                </a>
+                            </div>
+                        </FadeInSection>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the React App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
